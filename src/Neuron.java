@@ -4,7 +4,7 @@ import weka.core.Instance;
 import weka.core.Instances;
 
 public class Neuron {
-	private Integer activationFunction = 1; // 1. sigmoid, 2. step, 3. sign
+	private Integer activationFunction = 3; // 1. sigmoid, 2. step, 3. sign
 	private double[] inputWeight;
 	private double[][] input;
 	private double[] desire;
@@ -12,10 +12,13 @@ public class Neuron {
 	private int idx_instance;
 	private double threshold; // buat threshold step
 	private double rate;
-	private double bias = 0.3;
+	private double bias = 0;
+	private int epoch;
+	private double min_error = 0.05;
 
 	public Neuron(Instances data, double[] weight, double rate) {
-		this.threshold = 2;
+		this.epoch = 0;
+		this.threshold = 0.6;
 		this.rate = rate;
 		idx_instance = 0;
 		input = new double[100][100];
@@ -73,7 +76,10 @@ public class Neuron {
 			output = step(summingFunction());
 			break;
 		case 3:
-			output = sign(summingFunction());
+			if (sign(summingFunction()) == -1.0)
+				output = 0;
+			else
+				output = 1;
 			break;
 		default:
 			break;
@@ -81,8 +87,8 @@ public class Neuron {
 	}
 	
 	public double getClassify(double i, double j) {
-		System.out.println("i j : "+i+"--"+j);
-		System.out.println("weight1 weight2 : "+inputWeight[0]+"--"+inputWeight[1]);
+		//System.out.println("i j : "+i+"--"+j);
+		//System.out.println("weight1 weight2 : "+inputWeight[0]+"--"+inputWeight[1]);
 		double sum = inputWeight[0] * i + inputWeight[1] * j;
 		switch (activationFunction) {
 		case 1:
@@ -96,10 +102,10 @@ public class Neuron {
 			}
 			break;
 		case 2:
-			sum = step(summingFunction());
+			sum = step(sum);
 			break;
 		case 3:
-			sum = sign(summingFunction());
+			sum = sign(sum);
 			break;
 		default:
 			break;
@@ -122,20 +128,41 @@ public class Neuron {
 //		/return run;
 	}
 	
+	//calculate mean square error
+	public double calculateMSE(){
+		double result = 0;
+		double error_rate = 0;
+		
+		for (int i = 0; i < input.length; i++) {
+			double classification = getClassify(input[i][0], input[i][1]);
+			error_rate = desire[i] - classification;
+			error_rate = error_rate * error_rate;
+			result += error_rate;
+		}
+		//divided by attribute number
+		result = result / 2;
+		System.out.println("MSE : "+result+"== iterasi ke"+epoch);
+		return result;
+	}
+	
 	public void nextInstance() {
 		if (idx_instance > 3) {
 			idx_instance = 0;
+			epoch++;
 		} else {
 			idx_instance++;
 		}
 	}
 	
 	public void train() {
-		for (int i = 0; i < 12; i++) {
+		double mse = 0;
+		do{
 			getOutput();
 			updateWeight();
-			System.out.println("Weight : "+inputWeight[0]+"--"+inputWeight[1]+" input"+input[idx_instance][0]+"=="+input[idx_instance][1]);
+			//System.out.println("Weight : "+inputWeight[0]+"--"+inputWeight[1]+" input"+input[idx_instance][0]+"=="+input[idx_instance][1]);
+			mse = calculateMSE();
 			nextInstance();
 		}
+		while((epoch < 100) && (mse > min_error));
 	}
 }
