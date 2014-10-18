@@ -26,7 +26,7 @@ public class MyNN implements Classifier {
 		System.out.println("Weight : "+w1+"--"+w2);
 		neurons = new Neuron(data, weight, 0.1);
 		neurons.train();
-		System.out.println("Hasil : "+neurons.getClassify(1,0));
+		System.out.println("Hasil : "+neurons.getClassify(0,1));
 		
 	}
 	@Override
