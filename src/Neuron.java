@@ -4,7 +4,7 @@ import weka.core.Instance;
 import weka.core.Instances;
 
 public class Neuron {
-	private Integer activationFunction = 3; // 1. sigmoid, 2. step, 3. sign
+	private Integer activationFunction = 2; // 1. sigmoid, 2. step, 3. sign
 	private double[] inputWeight;
 	private double[][] input;
 	private double[] desire;
@@ -15,6 +15,7 @@ public class Neuron {
 	private double bias = 0;
 	private int epoch;
 	private double min_error = 0.05;
+	private Integer learningRule = 1; // 1. treshold, 2. batch gradient 3. delta rule
 
 	public Neuron(Instances data, double[] weight, double rate) {
 		this.epoch = 0;
@@ -49,7 +50,7 @@ public class Neuron {
 	}
 
 	public double step(double temp) {
-		if (temp >= threshold) {
+		if (temp >= 0.6) {
 			return 1;
 		} else {
 			return 0;
@@ -114,19 +115,29 @@ public class Neuron {
 	}
 	public void updateWeight() {
 		double deltaW;
-		//boolean run = false;
-		for (int i = 0; i < inputWeight.length; i++) {
-			deltaW = rate * (desire[idx_instance] - output)*input[idx_instance][i];
-			inputWeight[i] += deltaW;
-//			System.out.println("deltaw : "+deltaW);
-//			if (Math.abs(deltaW) >= 0.1) //ga konvergen
-//			{
-//				weight[i] += deltaW;
-//				run = true;
-//			}
+		if (learningRule == 1) {
+			for (int i = 0; i < inputWeight.length; i++) {
+				deltaW = rate * (desire[idx_instance] - output)*input[idx_instance][i];
+				inputWeight[i] += deltaW;
+				System.out.println("Simple perceptron : "+ deltaW);
+			}
+		} else if (learningRule == 2) {
+			for (int i = 0; i < inputWeight.length; i++) {
+				deltaW = rate * (desire[idx_instance] - summingFunction())*input[idx_instance][i];
+				inputWeight[i] += deltaW;
+				System.out.println("delta rule : "+ deltaW);
+			}
 		}
-//		/return run;
+		
 	}
+	
+	//use gradient descent for weight updating
+	/*public void updateWeightGradDescent(){
+		double deltaW;
+		for (int i = 0; i < inputWeight.length; i++) {
+			delt
+		}
+	}*/
 	
 	//calculate mean square error
 	public double calculateMSE(){
