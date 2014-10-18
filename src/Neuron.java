@@ -15,7 +15,7 @@ public class Neuron {
 	private double bias = 0;
 	private int epoch;
 	private double min_error = 0.05;
-	private Integer learningRule = 2; // 1. threshold, 2. batch gradient 3. delta rule
+	private Integer learningRule = 3; // 1. threshold, 2. batch gradient 3. delta rule
 	private double[] gradientDescentWeight;
 	
 	public Neuron(Instances data, double[] weight, double rate) {
@@ -117,24 +117,34 @@ public class Neuron {
 	public void updateWeight() {
 		double deltaW;
 		if (learningRule == 1) { //1.threshold
+			//System.out.println("simple perceptron :");
 			for (int i = 0; i < inputWeight.length; i++) {
 				deltaW = rate * (desire[idx_instance] - output)*input[idx_instance][i];
 				inputWeight[i] += deltaW;
-				System.out.println("Simple perceptron : "+ deltaW);
+				//print current weight
+				System.out.print(inputWeight[i]+" ");
 			}
-		} else if (learningRule == 3) { //3.delta rule
+			System.out.println();
+		}
+		else if (learningRule == 3) { //3.delta rule
+			//System.out.println("delta rule :");
 			for (int i = 0; i < inputWeight.length; i++) {
 				deltaW = rate * (desire[idx_instance] - summingFunction())*input[idx_instance][i];
 				inputWeight[i] += deltaW;
-				System.out.println("delta rule : "+ deltaW);
+				//print current weight
+				System.out.print(inputWeight[i]+" ");
 			}
+			System.out.println();
 		}
 		else{ //2.batch gradient descent
+			//System.out.println("batch gradient descent :");
 			for (int i = 0; i < inputWeight.length; i++) {
 				deltaW = rate * gradientDescentWeight[i];
 				inputWeight[i] += deltaW;
-				System.out.println("batch gradient descent : "+ deltaW);
+				//print current weight
+				System.out.print(inputWeight[i]+" ");
 			}
+			System.out.println();
 		}
 		
 	}
@@ -160,7 +170,7 @@ public class Neuron {
 		}
 		//divided by attribute number
 		result = result / 2;
-		System.out.println("MSE : "+result+"== iterasi ke"+epoch);
+		//System.out.println("MSE : "+result+"== iterasi ke"+epoch);
 		return result;
 	}
 	
@@ -171,12 +181,16 @@ public class Neuron {
 			}
 			idx_instance = 0;
 			epoch++;
+			for(int i = 0; i < 60; i ++) System.out.print("-");
+			System.out.println("\nEpoch ke-"+epoch);
 		} else {
 			idx_instance++;
 		}
 	}
 	
 	public void train() {
+		for(int i = 0; i < 60; i ++) System.out.print("-");
+		System.out.println("\nEpoch ke-"+epoch);
 		double mse = 0;
 		do{
 			if(learningRule != 2){
@@ -196,5 +210,11 @@ public class Neuron {
 			}
 		}
 		while((epoch < 2000) && (mse > min_error));
+		//print final weight
+		System.out.println("\nFinal Weight :");
+		for(int i = 0; i < inputWeight.length; i++){
+			System.out.print(inputWeight[i]+" ");
+		}
+		System.out.println();
 	}
 }

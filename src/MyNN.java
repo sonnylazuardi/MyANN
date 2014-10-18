@@ -23,10 +23,10 @@ public class MyNN implements Classifier {
 		double w1 = Math.random();
 		double w2 = Math.random();
 		double[] weight = {w1, w2};
-		System.out.println("Weight : "+w1+"--"+w2);
+		System.out.println("Initial Weight : \n"+w1+" "+w2); //print initial weight
 		neurons = new Neuron(data, weight, 0.1);
 		neurons.train();
-		System.out.println("Hasil : "+neurons.getClassify(0,1));
+		System.out.println("Hasil : "+neurons.getClassify(1,1));
 		
 	}
 	@Override
