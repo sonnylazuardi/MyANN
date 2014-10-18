@@ -7,27 +7,36 @@ public class Neuron {
 	private Integer activationFunction = 1; // 1. sigmoid, 2. step, 3. sign
 	private double[] inputWeight;
 	private double[][] input;
+	private double[] desire;
+	private double output;
 	private int idx_instance;
 	private double threshold; // buat threshold step
+	private double rate;
+	private double bias = 0.3;
 
-	public Neuron(Instances data) {
-		this.threshold = 0.5;
+	public Neuron(Instances data, double[] weight, double rate) {
+		this.threshold = 2;
+		this.rate = rate;
 		idx_instance = 0;
 		input = new double[100][100];
+		desire = new double[100];
+		inputWeight = weight;
+		
+		//masukin input dan desire input
 		for (int i = 0; i < data.numInstances(); i++) {
-			for (int j = 0; j < data.get(i).numAttributes()-1; j++) {
-				input[i][j] = data.get(i).value(j);
-				//System.out.print(data.get(i).value(j));
-				System.out.print(input[i][j]+" -- ");
+			for (int j = 0; j < data.get(i).numAttributes(); j++) {
+				if (j == data.get(i).numAttributes()-1 ) {
+					desire[i] = data.get(i).value(j);
+				} else 
+					input[i][j] = data.get(i).value(j);
 			}
-			System.out.println();
 		}
 	}
 
 	public double summingFunction() {
 		double sum = 0;
 		for (int i = 0; i < inputWeight.length; i++) {
-			sum += inputWeight[i] * input[i][idx_instance];
+			sum += inputWeight[i] * input[idx_instance][i] + bias;
 		}
 		return sum;
 	}
@@ -52,11 +61,13 @@ public class Neuron {
 		}
 	}
 
-	public double output() {
-		double output = 0;
+	public void getOutput() {
 		switch (activationFunction) {
 		case 1:
-			output = sigmoid(summingFunction());
+			if (sigmoid(summingFunction()) > 45)
+				output = 1;
+			else
+				output = 0;
 			break;
 		case 2:
 			output = step(summingFunction());
@@ -67,6 +78,64 @@ public class Neuron {
 		default:
 			break;
 		}
-		return output;
+	}
+	
+	public double getClassify(double i, double j) {
+		System.out.println("i j : "+i+"--"+j);
+		System.out.println("weight1 weight2 : "+inputWeight[0]+"--"+inputWeight[1]);
+		double sum = inputWeight[0] * i + inputWeight[1] * j;
+		switch (activationFunction) {
+		case 1:
+			if (summingFunction() > 1)
+				sum = 1;
+			else if (summingFunction() < -1)
+				sum = 0;
+			else {
+				System.out.println("yang ini");
+				return sigmoid(sum);
+			}
+			break;
+		case 2:
+			sum = step(summingFunction());
+			break;
+		case 3:
+			sum = sign(summingFunction());
+			break;
+		default:
+			break;
+		}
+		return sum;
+	}
+	public void updateWeight() {
+		double deltaW;
+		//boolean run = false;
+		for (int i = 0; i < inputWeight.length; i++) {
+			deltaW = rate * (desire[idx_instance] - output)*input[idx_instance][i];
+			inputWeight[i] += deltaW;
+//			System.out.println("deltaw : "+deltaW);
+//			if (Math.abs(deltaW) >= 0.1) //ga konvergen
+//			{
+//				weight[i] += deltaW;
+//				run = true;
+//			}
+		}
+//		/return run;
+	}
+	
+	public void nextInstance() {
+		if (idx_instance > 3) {
+			idx_instance = 0;
+		} else {
+			idx_instance++;
+		}
+	}
+	
+	public void train() {
+		for (int i = 0; i < 12; i++) {
+			getOutput();
+			updateWeight();
+			System.out.println("Weight : "+inputWeight[0]+"--"+inputWeight[1]+" input"+input[idx_instance][0]+"=="+input[idx_instance][1]);
+			nextInstance();
+		}
 	}
 }

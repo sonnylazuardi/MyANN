@@ -20,7 +20,14 @@ public class MyNN implements Classifier {
 	}
 	
 	public void PTR(Instances data) {
-		neurons = new Neuron(data);
+		double w1 = Math.random();
+		double w2 = Math.random();
+		double[] weight = {w1, w2};
+		System.out.println("Weight : "+w1+"--"+w2);
+		neurons = new Neuron(data, weight, 0.3);
+		neurons.train();
+		System.out.println("Hasil : "+neurons.getClassify(1,1));
+		
 	}
 	@Override
 	public void buildClassifier(Instances data) throws Exception {
@@ -30,7 +37,7 @@ public class MyNN implements Classifier {
 
 	@Override
 	public double classifyInstance(Instance instance) throws Exception {
-		// TODO Auto-generated method stub
+		
 		return 0;
 	}
 
